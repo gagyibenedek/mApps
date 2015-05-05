@@ -32,9 +32,13 @@
     <div class="apps">
         <div>
             <h3 ng-hide="apps">Please wait, the apps are loading...</h3>
-            <app-box ng-repeat="appIter in apps | filter:{name: search} track by $index" app="appIter" index="{{$index}}"></app-box>
+            <app-box ng-repeat="appIter in apps | filter:{name: search} track by $index" app="appIter"
+                     index="{{$index}}" open-details="openAppDetails"></app-box>
         </div>
     </div>
+
+    <app-details app="appWithDetails" close="closeAppDetails()"
+                 ng-class="{'open': showAppDetails}"></app-details>
 </div>
 
 

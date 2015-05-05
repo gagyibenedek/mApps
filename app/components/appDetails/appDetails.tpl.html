@@ -1,0 +1,33 @@
+<div class="details">
+    <i ng-click="close()" class="icon-chevron-left"></i>
+
+    <div class="details-header app-color-{{app.color}}">
+        <div class="details-header-letter" ng-bind="app.letter"></div>
+        <div class="details-header-name" ng-bind="app.name"></div>
+    </div>
+
+    <div class="details-content">
+        <span class="details-content-label">
+            Username
+        </span>
+        <input type="text" ng-model="app.username" class="details-content-input">
+
+        <span class="details-content-label">
+            Password
+        </span>
+        <input type="password" ng-model="app.password" class="details-content-input">
+
+        <span class="details-content-label">
+            Notes
+        </span>
+        <input type="text" ng-model="app.notes" class="details-content-input">
+
+        <span class="details-content-label">
+            Organization
+        </span>
+        <select ng-model="app.organization" class="details-content-input">
+            <option value="" selected>(none)</option>
+            <option ng-repeat="org in organizations" value="org.val" ng-bind="org.text"></option>
+        </select>
+    </div>
+</div>

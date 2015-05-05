@@ -1,0 +1,65 @@
+.details {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: -370px;
+  transition: right 0.5s ease;
+  width: 360px;
+  background-color: $color-primary;
+  @include shadow(3);
+
+  .icon-chevron-left {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    color: $color-primary;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  &-header {
+    height: 125px;
+    color: $color-primary;
+    text-align: center;
+    padding: 5px 0 25px 0;
+    box-sizing: border-box;
+
+    &-letter{
+      font-size: 55px;
+    }
+
+    &-name {
+      font-size: $font-size-m;
+      padding: 0 20px;
+    }
+  }
+
+  &-content {
+    padding: 35px 20px;
+
+    &-label {
+      font-size: $font-size-xs;
+    }
+
+    &-input {
+      width: 100%;
+      border-width: 0 0 1px 0;
+      margin-top: 15px;
+      font-size: $font-size-m;
+      outline: none;
+
+      &:focus {
+        border-width: 0 0 3px 0;
+      }
+    }
+  }
+}
+
+.details.open {
+  right: 0;
+}
+
+.icon-chevron-left:before {
+  @include icon();
+  content: "\e600";
+}

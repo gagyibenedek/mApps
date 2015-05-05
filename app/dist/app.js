@@ -6,7 +6,7 @@ app.controller('MainController', ['$scope', 'appsFactory',
     function ($scope, appsFactory) {
         $scope.total = appsFactory.getAppCount();
 
-        appsFactory.getBatchOfApps(0,50).then(function (apps) {
+        appsFactory.getBatchOfApps(0, 50).then(function (apps) {
             $scope.apps = apps;
         });
 
@@ -14,20 +14,35 @@ app.controller('MainController', ['$scope', 'appsFactory',
         $scope.showNewApp = false;
 
         $scope.saveNewApp = function (name, color) {
-            $scope.apps = [];
-            $scope.showNewApp = false;
+            name = name.trim();
+            if (name !== '') {
+                $scope.apps = [];
 
-            appsFactory.saveNewApp(name, color).then(function(apps){
-                $scope.apps = apps;
-            });
+                appsFactory.saveNewApp(name, color).then(function (apps) {
+                    $scope.apps = apps;
+                });
+            }
+            $scope.showNewApp = false;
         };
 
-        $scope.addNewApp = function(){
+        $scope.addNewApp = function () {
             $scope.showNewApp = true;
         }
 
         $scope.cancelNewApp = function () {
             $scope.showNewApp = false;
+        }
+
+        $scope.showAppDetails = false;
+        $scope.appWithDetails = {};
+
+        $scope.openAppDetails = function(index) {
+            $scope.appWithDetails = $scope.apps[index];
+            $scope.showAppDetails = true;
+        }
+
+        $scope.closeAppDetails = function() {
+            $scope.showAppDetails = false;
         }
 
     }
@@ -87,20 +102,65 @@ angular.module('meldium')
 );
 ;'use strict';
 
+angular.module('meldium')
+    .factory('organizationFactory',
+    function ($timeout) {
+        var organizationFactory = {},
+            orgs = [
+                {val: "org1", text: "Org 1"},
+                {val: "org2", text: "Org 2"},
+                {val: "org3", text: "Org 3"},
+                {val: "org4", text: "Org 4"},
+                {val: "org5", text: "Org 5"}
+            ];
+
+        organizationFactory.getOrganizations = function () {
+            return orgs;
+        };
+
+        return organizationFactory;
+    }
+);
+;'use strict';
+
 angular.module('meldium').directive('appBox', function () {
     return {
         restrict: 'AE',
         scope: {
             app: '=',
-            index: '@'
+            index: '@',
+            openDetails: '&'
         },
         templateUrl: 'app/components/appBox/appBox.tpl.html',
         replace: true,
         link: function (scope, ele, attr) {
             scope.users = scope.app.users === 1 ? 'user' : 'users';
+            scope.detailsMethod = scope.openDetails();
+
+            scope.openAppDetails = function(){
+                scope.detailsMethod(scope.index);
+            }
         }
     }
 });;'use strict';
+
+angular.module('meldium').directive('appDetails', ['organizationFactory',
+    function (organizationFactory) {
+        return {
+            restrict: 'AE',
+            scope: {
+                app: '=',
+                close: '&'
+            },
+            templateUrl: 'app/components/appDetails/appDetails.tpl.html',
+            replace: true,
+            link: function (scope, ele, attr) {
+                scope.open = 'details-open';
+
+                scope.organizations = organizationFactory.getOrganizations();
+            }
+        }
+    }]);;'use strict';
 
 angular.module('meldium').directive('newApp', function () {
     return {

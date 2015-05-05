@@ -6,7 +6,7 @@ app.controller('MainController', ['$scope', 'appsFactory',
     function ($scope, appsFactory) {
         $scope.total = appsFactory.getAppCount();
 
-        appsFactory.getBatchOfApps(0,50).then(function (apps) {
+        appsFactory.getBatchOfApps(0, 50).then(function (apps) {
             $scope.apps = apps;
         });
 
@@ -14,20 +14,35 @@ app.controller('MainController', ['$scope', 'appsFactory',
         $scope.showNewApp = false;
 
         $scope.saveNewApp = function (name, color) {
-            $scope.apps = [];
-            $scope.showNewApp = false;
+            name = name.trim();
+            if (name !== '') {
+                $scope.apps = [];
 
-            appsFactory.saveNewApp(name, color).then(function(apps){
-                $scope.apps = apps;
-            });
+                appsFactory.saveNewApp(name, color).then(function (apps) {
+                    $scope.apps = apps;
+                });
+            }
+            $scope.showNewApp = false;
         };
 
-        $scope.addNewApp = function(){
+        $scope.addNewApp = function () {
             $scope.showNewApp = true;
         }
 
         $scope.cancelNewApp = function () {
             $scope.showNewApp = false;
+        }
+
+        $scope.showAppDetails = false;
+        $scope.appWithDetails = {};
+
+        $scope.openAppDetails = function(index) {
+            $scope.appWithDetails = $scope.apps[index];
+            $scope.showAppDetails = true;
+        }
+
+        $scope.closeAppDetails = function() {
+            $scope.showAppDetails = false;
         }
 
     }
