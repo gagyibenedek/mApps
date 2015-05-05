@@ -8,6 +8,11 @@
   background-color: $color-primary;
   @include shadow(3);
 
+  @media(max-width: $screen-xs) {
+    width: 100%;
+    right: -500px;
+  }
+
   .icon-chevron-left {
     position: absolute;
     left: 5px;
