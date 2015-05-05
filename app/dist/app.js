@@ -1,14 +1,23 @@
-'use strict';
+/* ng-infinite-scroll - v1.0.0 - 2013-02-23 */
+var mod;mod=angular.module("infinite-scroll",[]),mod.directive("infiniteScroll",["$rootScope","$window","$timeout",function(i,n,e){return{link:function(t,l,o){var r,c,f,a;return n=angular.element(n),f=0,null!=o.infiniteScrollDistance&&t.$watch(o.infiniteScrollDistance,function(i){return f=parseInt(i,10)}),a=!0,r=!1,null!=o.infiniteScrollDisabled&&t.$watch(o.infiniteScrollDisabled,function(i){return a=!i,a&&r?(r=!1,c()):void 0}),c=function(){var e,c,u,d;return d=n.height()+n.scrollTop(),e=l.offset().top+l.height(),c=e-d,u=n.height()*f>=c,u&&a?i.$$phase?t.$eval(o.infiniteScroll):t.$apply(o.infiniteScroll):u?r=!0:void 0},n.on("scroll",c),t.$on("$destroy",function(){return n.off("scroll",c)}),e(function(){return o.infiniteScrollImmediateCheck?t.$eval(o.infiniteScrollImmediateCheck)?c():void 0:c()},0)}}}]);;'use strict';
 
-var app = angular.module('meldium', []);
+var app = angular.module('meldium', ['infinite-scroll']);
 
 app.controller('MainController', ['$scope', 'appsFactory',
     function ($scope, appsFactory) {
+        var cursor = 0,
+            pageSize = 50;
+
+        function resetAppList() {
+            appsFactory.getBatchOfApps(0, pageSize).then(function (apps) {
+                cursor = pageSize;
+                $scope.apps = apps;
+            });
+        }
+
         $scope.total = appsFactory.getAppCount();
 
-        appsFactory.getBatchOfApps(0, 50).then(function (apps) {
-            $scope.apps = apps;
-        });
+        resetAppList();
 
         $scope.search = '';
         $scope.showNewApp = false;
@@ -18,9 +27,9 @@ app.controller('MainController', ['$scope', 'appsFactory',
             if (name !== '') {
                 $scope.apps = [];
 
-                appsFactory.saveNewApp(name, color).then(function (apps) {
-                    $scope.apps = apps;
-                });
+                if (appsFactory.saveNewApp(name, color)) {
+                    resetAppList();
+                }
             }
             $scope.showNewApp = false;
         };
@@ -36,14 +45,24 @@ app.controller('MainController', ['$scope', 'appsFactory',
         $scope.showAppDetails = false;
         $scope.appWithDetails = {};
 
-        $scope.openAppDetails = function(index) {
+        $scope.openAppDetails = function (index) {
             $scope.appWithDetails = $scope.apps[index];
             $scope.showAppDetails = true;
         }
 
-        $scope.closeAppDetails = function() {
+        $scope.closeAppDetails = function () {
             $scope.showAppDetails = false;
         }
+
+        $scope.paging = function () {
+            console.log(cursor, cursor + pageSize);
+
+            appsFactory.getBatchOfApps(cursor, cursor + pageSize).then(function (batch) {
+                $scope.apps = $scope.apps.concat(batch);
+                cursor += pageSize;
+            });
+        }
+
 
     }
 ]);
@@ -79,7 +98,10 @@ angular.module('meldium')
             return $timeout(function () {
                 var i, app, batch = [],
                     batchSize = until - from;
-                batch = customApps.concat([]);
+                if(from === 0){
+                    //add custom apps only once
+                    batch = customApps.concat([]);
+                }
                 for (i = 0; i < batchSize; i++) {
                     app = apps[Math.floor(Math.random() * 10)];
                     app.letter = app.name[0];
@@ -94,7 +116,7 @@ angular.module('meldium')
             var app = {name: name, users: 1000+color, username: '', password: '********', notes: '', organization: '', color: color, letter: name[0]};
             customApps.unshift(app);
 
-            return appFactory.getBatchOfApps(0, 50);
+            return true;
         }
 
         return appFactory;

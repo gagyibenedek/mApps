@@ -27,7 +27,7 @@ module.exports = function (grunt) {
         separator: ';'
       },
       dist: {
-        src: ['app/main.js', 'app/factories/*.js', 'app/components/*/*.js'],
+        src: ['app/vendor/ngInfiniteScroll/ngInfiniteScroll.js', 'app/main.js', 'app/factories/*.js', 'app/components/*/*.js'],
         dest: 'app/dist/app.js'
       }
     },

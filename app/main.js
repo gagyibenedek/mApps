@@ -1,14 +1,22 @@
 'use strict';
 
-var app = angular.module('meldium', []);
+var app = angular.module('meldium', ['infinite-scroll']);
 
 app.controller('MainController', ['$scope', 'appsFactory',
     function ($scope, appsFactory) {
+        var cursor = 0,
+            pageSize = 50;
+
+        function resetAppList() {
+            appsFactory.getBatchOfApps(0, pageSize).then(function (apps) {
+                cursor = pageSize;
+                $scope.apps = apps;
+            });
+        }
+
         $scope.total = appsFactory.getAppCount();
 
-        appsFactory.getBatchOfApps(0, 50).then(function (apps) {
-            $scope.apps = apps;
-        });
+        resetAppList();
 
         $scope.search = '';
         $scope.showNewApp = false;
@@ -18,9 +26,9 @@ app.controller('MainController', ['$scope', 'appsFactory',
             if (name !== '') {
                 $scope.apps = [];
 
-                appsFactory.saveNewApp(name, color).then(function (apps) {
-                    $scope.apps = apps;
-                });
+                if (appsFactory.saveNewApp(name, color)) {
+                    resetAppList();
+                }
             }
             $scope.showNewApp = false;
         };
@@ -36,14 +44,24 @@ app.controller('MainController', ['$scope', 'appsFactory',
         $scope.showAppDetails = false;
         $scope.appWithDetails = {};
 
-        $scope.openAppDetails = function(index) {
+        $scope.openAppDetails = function (index) {
             $scope.appWithDetails = $scope.apps[index];
             $scope.showAppDetails = true;
         }
 
-        $scope.closeAppDetails = function() {
+        $scope.closeAppDetails = function () {
             $scope.showAppDetails = false;
         }
+
+        $scope.paging = function () {
+            console.log(cursor, cursor + pageSize);
+
+            appsFactory.getBatchOfApps(cursor, cursor + pageSize).then(function (batch) {
+                $scope.apps = $scope.apps.concat(batch);
+                cursor += pageSize;
+            });
+        }
+
 
     }
 ]);

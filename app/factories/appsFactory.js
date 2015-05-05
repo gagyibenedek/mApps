@@ -30,7 +30,10 @@ angular.module('meldium')
             return $timeout(function () {
                 var i, app, batch = [],
                     batchSize = until - from;
-                batch = customApps.concat([]);
+                if(from === 0){
+                    //add custom apps only once
+                    batch = customApps.concat([]);
+                }
                 for (i = 0; i < batchSize; i++) {
                     app = apps[Math.floor(Math.random() * 10)];
                     app.letter = app.name[0];
@@ -45,7 +48,7 @@ angular.module('meldium')
             var app = {name: name, users: 1000+color, username: '', password: '********', notes: '', organization: '', color: color, letter: name[0]};
             customApps.unshift(app);
 
-            return appFactory.getBatchOfApps(0, 50);
+            return true;
         }
 
         return appFactory;
