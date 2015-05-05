@@ -1,0 +1,57 @@
+.new-app {
+  padding: 20px;
+  background-color: $color-primary;
+  @include shadow(1);
+
+  &-name {
+    width: calc(60% - 40px); // - padding
+    border-width: 0 0 1px 0;
+    outline: none;
+
+    @media(max-width: $screen-md) {
+      width: 100%; // - padding
+    }
+
+    &:focus {
+      border-width: 0 0 3px 0;
+    }
+  }
+
+  &-button {
+    width: 20%;
+    border: 0;
+    color: $color-primary;
+    box-sizing: border-box;
+
+    @media(max-width: $screen-md) {
+      width: calc(50% - 20px); // - padding
+      margin: 10px 0;
+    }
+
+    @media(max-width: $screen-ss) {
+      width: 100%; // - padding
+      margin: 10px 0;
+    }
+
+    &-cancel {
+      background-color: transparent;
+      border: 2px solid $color-text-secondary;
+      color: $color-text-secondary;
+
+      @media(max-width: $screen-md) {
+        margin-left: 35px;
+      }
+
+      @media(max-width: $screen-ss) {
+        margin-left: 0;
+      }
+
+      &:hover {
+        border-color: darken($color-accent, $color-hover-modifier);
+        color: darken($color-accent, $color-hover-modifier);
+      }
+    }
+
+  }
+
+}

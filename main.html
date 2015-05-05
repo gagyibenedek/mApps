@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Meldium</title>
+
+    <link rel="stylesheet" type="text/css" href="app/dist/app.css">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700' rel='stylesheet' type='text/css'>
+</head>
+
+<body ng-app="meldium">
+<div ng-controller="MainController" class="board">
+    <div class="search">
+        <i class="icon-search"></i>
+        <input type="text" ng-model="search" class="search-input" placeholder="Search all apps">
+    </div>
+
+    <div class="header">
+        <span class="header-all-apps">ALL APPS</span>
+        <span class="header-total">{{total}}</span>
+
+        <button type="button" ng-click="addNewApp()" class="header-add-custom">+ Add custom app</button>
+
+    </div>
+
+    <div ng-if="showNewApp" class="new-app-wrapper">
+        <new-app save-new-app="saveNewApp" cancel="cancelNewApp()"></new-app>
+    </div>
+
+    <div class="apps">
+        <div>
+            <h3 ng-hide="apps">Please wait, the apps are loading...</h3>
+            <app-box ng-repeat="appIter in apps | filter:{name: search} track by $index" app="appIter" index="{{$index}}"></app-box>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+<script src="app/dist/app.js"></script>
+
+</body>
+
+</html>

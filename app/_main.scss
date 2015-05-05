@@ -1,0 +1,103 @@
+$padding-vertical: 70px;
+$padding-vertical-small: 20px;
+
+.board {
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: $color-light;
+}
+
+.search {
+  width: 100%;
+  padding: 30px $padding-vertical;
+  background-color: $color-primary;
+
+  @media(max-width: $screen-xs) {
+    padding: 30px $padding-vertical-small;
+  }
+
+  &-input {
+    width: calc(100% - 2*70px - 30px); // 100% - 2*$padding-vertical - icon width
+    font-size: $font-size-l;
+    font-weight: $font-weight-light;
+    color: $color-text;
+    border-width: 0;
+    border-color: #ddd;
+    padding: 0 15px;
+    outline: none;
+
+    @media(max-width: $screen-xs) {
+      width: calc(100% - 2*20px - 30px); // 100% - 2*$padding-vertical - icon width
+    }
+  }
+
+  .icon-search {
+    font-size: 30px;
+    color: $color-text-secondary;
+    vertical-align: sub;
+  }
+}
+
+.header {
+  display: inline-block;
+  padding: 0 $padding-vertical;
+
+  @media(max-width: $screen-xs) {
+    padding: 0 $padding-vertical-small;
+  }
+
+  &-all-apps {
+    font-size: $font-size-m;
+    font-weight: $font-weight-semi-bold;
+  }
+
+  &-total {
+    font-size: $font-size-xs;
+    vertical-align: super;
+  }
+
+  &-add-custom {
+    margin-left: 30px;
+    border: none;
+    background-color: transparent;
+    font-size: $font-size-s;
+    color: $color-accent;
+    outline: none;
+  }
+
+  &-add-custom:hover {
+    color: darken($color-accent, $color-hover-modifier);
+  }
+}
+
+.new-app-wrapper {
+  width: calc(100% - 2*70px);//- 2*$padding-vertical
+  padding: 5px $padding-vertical;
+
+  @media(max-width: $screen-md) {
+    width: calc(100% - 2*70px - 10px);//- 2*$padding-vertical - the margin of the appBox
+  }
+
+  @media(max-width: $screen-sm) {
+    width: calc(100% - 2 * 70px); // - 2*$padding-vertical
+  }
+
+  @media(max-width: $screen-xs) {
+    width: calc(100% - 2 * 20px); // - 2*$padding-vertical-small
+    padding: 5px $padding-vertical-small;
+  }
+}
+
+.apps {
+  padding: 20px $padding-vertical - 10px;// - 2*$padding-vertical - the margin of the inner element
+  background-color: $color-light;
+
+  @media(max-width: $screen-xs) {
+    padding: 20px $padding-vertical-small - 10px;// - 2*$padding-vertical - the margin of the inner element
+  }
+}
+
+.icon-search:before {
+  @include icon();
+  content: "\e036";
+}
