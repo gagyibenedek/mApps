@@ -8,8 +8,12 @@ app.controller('MainController', ['$scope', 'appsFactory',
         var cursor = 0,
             pageSize = 50;
 
-        function resetAppList() {
-            appsFactory.getBatchOfApps(0, pageSize).then(function (apps) {
+        $scope.getFirstBatch = function () {
+            return appsFactory.getBatchOfApps(0, pageSize);
+        }
+
+        $scope.resetAppList = function () {
+            $scope.getFirstBatch().then(function (apps) {
                 cursor = pageSize;
                 $scope.apps = apps;
             });
@@ -17,7 +21,7 @@ app.controller('MainController', ['$scope', 'appsFactory',
 
         $scope.total = appsFactory.getAppCount();
 
-        resetAppList();
+        $scope.resetAppList();
 
         $scope.search = '';
         $scope.showNewApp = false;
@@ -28,7 +32,7 @@ app.controller('MainController', ['$scope', 'appsFactory',
                 $scope.apps = [];
 
                 if (appsFactory.saveNewApp(name, color)) {
-                    resetAppList();
+                    $scope.resetAppList();
                 }
             }
             $scope.showNewApp = false;
@@ -55,8 +59,6 @@ app.controller('MainController', ['$scope', 'appsFactory',
         }
 
         $scope.paging = function () {
-            console.log(cursor, cursor + pageSize);
-
             appsFactory.getBatchOfApps(cursor, cursor + pageSize).then(function (batch) {
                 $scope.apps = $scope.apps.concat(batch);
                 cursor += pageSize;
@@ -91,6 +93,19 @@ angular.module('meldium')
         appFactory.getAppCount = function () {
             //get the total number of apps
             return 2016;
+        };
+
+        appFactory.searchForApps = function(search){
+          var results = [],
+              i = apps.length;
+
+            while(i--){
+                if(apps[i].name.toLowerCase().indexOf(search) !== -1){
+                    results.push(apps[i]);
+                }
+            }
+
+            return results;
         };
 
         appFactory.getBatchOfApps = function (from, until) {
@@ -203,4 +218,42 @@ angular.module('meldium').directive('newApp', function () {
             }
         }
     }
-});
+});;'use strict';
+
+angular.module('meldium').directive('searcher', ['appsFactory',
+    function (appsFactory) {
+        return {
+            restrict: 'A',
+            scope: {
+                resultList: '=',
+                resetList: '&',
+                minChars: '@'
+            },
+            link: function (scope, ele, attr) {
+                var minChars = parseInt(scope.minChars) || 1,
+                    dirty = false;
+
+
+                ele.bind('change keyup', function () {
+                    if (ele.val().length >= minChars) {
+                        console.log(ele.val())
+                        scope.$apply(function() {
+                            scope.resultList = appsFactory.searchForApps(ele.val());
+                        });
+                        if(!dirty) {
+                            dirty = true;
+                        }
+                    } else if(ele.val().length === 0){
+                        scope.resetList().then(function(apps){
+                            console.log('ARRIVED');
+                            if(ele.val().length === 0){
+                                scope.resultList = apps;
+                            }
+                        });
+                    }
+                })
+            }
+        }
+
+    }
+]);

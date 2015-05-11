@@ -25,6 +25,19 @@ angular.module('meldium')
             return 2016;
         };
 
+        appFactory.searchForApps = function(search){
+          var results = [],
+              i = apps.length;
+
+            while(i--){
+                if(apps[i].name.toLowerCase().indexOf(search) !== -1){
+                    results.push(apps[i]);
+                }
+            }
+
+            return results;
+        };
+
         appFactory.getBatchOfApps = function (from, until) {
             //simulate roundtrip time
             return $timeout(function () {

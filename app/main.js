@@ -7,8 +7,12 @@ app.controller('MainController', ['$scope', 'appsFactory',
         var cursor = 0,
             pageSize = 50;
 
-        function resetAppList() {
-            appsFactory.getBatchOfApps(0, pageSize).then(function (apps) {
+        $scope.getFirstBatch = function () {
+            return appsFactory.getBatchOfApps(0, pageSize);
+        }
+
+        $scope.resetAppList = function () {
+            $scope.getFirstBatch().then(function (apps) {
                 cursor = pageSize;
                 $scope.apps = apps;
             });
@@ -16,7 +20,7 @@ app.controller('MainController', ['$scope', 'appsFactory',
 
         $scope.total = appsFactory.getAppCount();
 
-        resetAppList();
+        $scope.resetAppList();
 
         $scope.search = '';
         $scope.showNewApp = false;
@@ -27,7 +31,7 @@ app.controller('MainController', ['$scope', 'appsFactory',
                 $scope.apps = [];
 
                 if (appsFactory.saveNewApp(name, color)) {
-                    resetAppList();
+                    $scope.resetAppList();
                 }
             }
             $scope.showNewApp = false;
@@ -54,8 +58,6 @@ app.controller('MainController', ['$scope', 'appsFactory',
         }
 
         $scope.paging = function () {
-            console.log(cursor, cursor + pageSize);
-
             appsFactory.getBatchOfApps(cursor, cursor + pageSize).then(function (batch) {
                 $scope.apps = $scope.apps.concat(batch);
                 cursor += pageSize;
