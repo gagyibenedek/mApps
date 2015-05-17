@@ -41,7 +41,7 @@ angular.module('meldium')
         appFactory.getBatchOfApps = function (from, until) {
             //simulate roundtrip time
             return $timeout(function () {
-                var i, app, batch = [],
+                var i, app, newApp, batch = [],
                     batchSize = until - from;
                 if(from === 0){
                     //add custom apps only once
@@ -49,12 +49,21 @@ angular.module('meldium')
                 }
                 for (i = 0; i < batchSize; i++) {
                     app = apps[Math.floor(Math.random() * 10)];
-                    app.letter = app.name[0];
-                    batch.push(app);
+                    newApp = {
+                        name: ' #' + (from + i) + app.name, //numbers added to names to ease identification
+                        users: app.users,
+                        username: app.username,
+                        password: app.password,
+                        notes: app.notes,
+                        organization: app.organization,
+                        color: app.color,
+                        letter: app.name[0]
+                    };
+                    batch.push(newApp);
                 }
 
                 return batch;
-            }, 1000);
+            }, (until-from)*10);
         };
 
         appFactory.saveNewApp = function(name, color){

@@ -16,7 +16,7 @@ $padding-vertical-small: 20px;
   }
 
   &-input {
-    width: calc(100% - 2*70px - 30px); // 100% - 2*$padding-vertical - icon width
+    width: calc(100% - 2 * 70px - 30px); // 100% - 2*$padding-vertical - icon width
     font-size: $font-size-l;
     font-weight: $font-weight-light;
     color: $color-text;
@@ -26,7 +26,7 @@ $padding-vertical-small: 20px;
     outline: none;
 
     @media(max-width: $screen-xs) {
-      width: calc(100% - 2*20px - 30px); // 100% - 2*$padding-vertical - icon width
+      width: calc(100% - 2 * 20px - 30px); // 100% - 2*$padding-vertical - icon width
     }
   }
 
@@ -71,11 +71,11 @@ $padding-vertical-small: 20px;
 }
 
 .new-app-wrapper {
-  width: calc(100% - 2*70px);//- 2*$padding-vertical
+  width: calc(100% - 2 * 70px); //- 2*$padding-vertical
   padding: 5px $padding-vertical;
 
   @media(max-width: $screen-md) {
-    width: calc(100% - 2*70px - 10px);//- 2*$padding-vertical - the margin of the appBox
+    width: calc(100% - 2 * 70px - 10px); //- 2*$padding-vertical - the margin of the appBox
   }
 
   @media(max-width: $screen-sm) {
@@ -89,15 +89,31 @@ $padding-vertical-small: 20px;
 }
 
 .apps {
-  padding: 20px $padding-vertical - 10px;// - 2*$padding-vertical - the margin of the inner element
+  padding: 20px $padding-vertical - 10px; // - 2*$padding-vertical - the margin of the inner element
   background-color: $color-light;
 
   @media(max-width: $screen-xs) {
-    padding: 20px $padding-vertical-small - 10px;// - 2*$padding-vertical - the margin of the inner element
+    padding: 20px $padding-vertical-small - 10px; // - 2*$padding-vertical - the margin of the inner element
   }
 }
 
 .icon-search:before {
   @include icon();
   content: "\e036";
+}
+
+.loading {
+  position: fixed;
+  background-color: rgba($color-accent, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  font-size: 10vw;
+  color: $color-text;
+  font-weight: 700;
+
 }

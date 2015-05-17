@@ -1,23 +1,108 @@
-/* ng-infinite-scroll - v1.0.0 - 2013-02-23 */
-var mod;mod=angular.module("infinite-scroll",[]),mod.directive("infiniteScroll",["$rootScope","$window","$timeout",function(i,n,e){return{link:function(t,l,o){var r,c,f,a;return n=angular.element(n),f=0,null!=o.infiniteScrollDistance&&t.$watch(o.infiniteScrollDistance,function(i){return f=parseInt(i,10)}),a=!0,r=!1,null!=o.infiniteScrollDisabled&&t.$watch(o.infiniteScrollDisabled,function(i){return a=!i,a&&r?(r=!1,c()):void 0}),c=function(){var e,c,u,d;return d=n.height()+n.scrollTop(),e=l.offset().top+l.height(),c=e-d,u=n.height()*f>=c,u&&a?i.$$phase?t.$eval(o.infiniteScroll):t.$apply(o.infiniteScroll):u?r=!0:void 0},n.on("scroll",c),t.$on("$destroy",function(){return n.off("scroll",c)}),e(function(){return o.infiniteScrollImmediateCheck?t.$eval(o.infiniteScrollImmediateCheck)?c():void 0:c()},0)}}}]);;'use strict';
+'use strict';
 
-var app = angular.module('meldium', ['infinite-scroll']);
+var app = angular.module('meldium', []);
 
-app.controller('MainController', ['$scope', 'appsFactory',
-    function ($scope, appsFactory) {
-        var cursor = 0,
-            pageSize = 50;
+app.controller('MainController', ['$scope', 'appsFactory', '$window', '$document',
+    function ($scope, appsFactory, $window, $document) {
+        var cursor,
+            tail = 0,
+            pageSize = 0;
 
-        $scope.getFirstBatch = function () {
-            return appsFactory.getBatchOfApps(0, pageSize);
+        $scope.allTheWayInProgress = false;
+
+        $scope.pagingInProgress = false;
+
+        $scope.apps = [];
+
+        function getFirstBatch() {
+            appsFactory.getBatchOfApps(pageSize, pageSize + 10).then(function (apps) {
+                var page = Math.floor($document[0].body.clientHeight / $window.innerHeight);
+                $scope.apps = $scope.apps.concat(apps);
+                pageSize += 10;
+                cursor = pageSize;
+
+                if (page < 2) {
+                    getFirstBatch();
+                }
+            });
         }
 
         $scope.resetAppList = function () {
-            $scope.getFirstBatch().then(function (apps) {
-                cursor = pageSize;
-                $scope.apps = apps;
+            tail = 0;
+            pageSize = 0;
+            getFirstBatch();
+        }
+
+        $scope.removeFromTop = function () {
+            $scope.$apply(function () {
+                $scope.apps = $scope.apps.slice(pageSize);
+                tail += pageSize;
+                console.log('Remove from top', tail);
             });
         }
+
+        $scope.removeFromBottom = function () {
+            if (cursor > pageSize * 2) {
+                $scope.$apply(function () {
+                    $scope.apps = $scope.apps.slice(0, $scope.apps.length - pageSize);
+                    cursor -= pageSize;
+                    console.log('Removed from bottom', cursor);
+                });
+            }
+        }
+
+        $scope.pageTop = function () {
+            var from = tail - pageSize,
+                until = tail;
+            if (from >= 0) {
+                page(from, until, false);
+            }
+        }
+
+        $scope.pageAllTheWayTop = function () {
+            if (tail > 0) {
+                $scope.pagingInProgress = true;
+                $scope.allTheWayInProgress = true;
+
+                //we only need the first 2 pages
+                appsFactory.getBatchOfApps(0, pageSize * 2).then(function (batch) {
+                    $scope.apps = batch;
+                    $scope.pagingInProgress = false;
+                    $scope.allTheWayInProgress = false;
+
+                    cursor = pageSize * 2;
+                    tail = 0;
+
+                    console.log('Paged all the way to the top');
+                });
+            }
+        }
+
+        $scope.pageBottom = function () {
+            var from = cursor,
+                until = cursor + pageSize;
+            page(from, until, true);
+        }
+
+        function page(from, until, bottomPaging) {
+            if (!$scope.pagingInProgress && !$scope.allTheWayInProgress) {
+                $scope.pagingInProgress = true;
+
+                appsFactory.getBatchOfApps(from, until).then(function (batch) {
+                    if (bottomPaging) {
+                        $scope.apps = $scope.apps.concat(batch);
+                        cursor = until;
+                        console.log('Paged bottom', cursor);
+                    } else {
+                        $scope.apps = batch.concat($scope.apps);
+                        tail = from;
+                        console.log('Paged top', tail);
+                    }
+                    $scope.pagingInProgress = false;
+                });
+            }
+        }
+
 
         $scope.total = appsFactory.getAppCount();
 
@@ -57,14 +142,6 @@ app.controller('MainController', ['$scope', 'appsFactory',
         $scope.closeAppDetails = function () {
             $scope.showAppDetails = false;
         }
-
-        $scope.paging = function () {
-            appsFactory.getBatchOfApps(cursor, cursor + pageSize).then(function (batch) {
-                $scope.apps = $scope.apps.concat(batch);
-                cursor += pageSize;
-            });
-        }
-
 
     }
 ]);
@@ -111,7 +188,7 @@ angular.module('meldium')
         appFactory.getBatchOfApps = function (from, until) {
             //simulate roundtrip time
             return $timeout(function () {
-                var i, app, batch = [],
+                var i, app, newApp, batch = [],
                     batchSize = until - from;
                 if(from === 0){
                     //add custom apps only once
@@ -119,12 +196,21 @@ angular.module('meldium')
                 }
                 for (i = 0; i < batchSize; i++) {
                     app = apps[Math.floor(Math.random() * 10)];
-                    app.letter = app.name[0];
-                    batch.push(app);
+                    newApp = {
+                        name: ' #' + (from + i) + app.name, //numbers added to names to ease identification
+                        users: app.users,
+                        username: app.username,
+                        password: app.password,
+                        notes: app.notes,
+                        organization: app.organization,
+                        color: app.color,
+                        letter: app.name[0]
+                    };
+                    batch.push(newApp);
                 }
 
                 return batch;
-            }, 1000);
+            }, (until-from)*10);
         };
 
         appFactory.saveNewApp = function(name, color){
@@ -220,6 +306,48 @@ angular.module('meldium').directive('newApp', function () {
     }
 });;'use strict';
 
+angular.module('meldium').directive('scroller',
+    function ($window, $document) {
+        return {
+            restrict: 'A',
+            scope: true,
+            link: function (scope, element, attrs) {
+                var viewPort,
+                    lastOffset = 0,
+                    page = 0,
+                    pagingConstant = 3;
+
+                angular.element($window).bind("scroll", function () {
+                    page = Math.floor($document[0].body.clientHeight / viewPort);
+                    viewPort = $window.innerHeight;
+
+                    if (lastOffset < this.pageYOffset) { //scroll down
+                        if ($document[0].body.clientHeight - this.pageYOffset < viewPort * pagingConstant) {
+                            scope.pageBottom();
+                        }
+
+                        if (this.pageYOffset > viewPort * pagingConstant) {
+                            scope.removeFromTop();
+                        }
+                    } else if (lastOffset > this.pageYOffset) { //scroll up
+                        if (this.pageYOffset === 0) {
+                            scope.pageAllTheWayTop();
+                        } else if (this.pageYOffset < viewPort * pagingConstant) {
+                            scope.pageTop();
+                        }
+
+                        if ($document[0].body.clientHeight - this.pageYOffset > viewPort * pagingConstant) {
+                            scope.removeFromBottom();
+                        }
+                    }
+
+                    lastOffset = this.pageYOffset;
+                });
+            }
+        }
+    }
+);;'use strict';
+
 angular.module('meldium').directive('searcher', ['appsFactory',
     function (appsFactory) {
         return {
@@ -230,26 +358,17 @@ angular.module('meldium').directive('searcher', ['appsFactory',
                 minChars: '@'
             },
             link: function (scope, ele, attr) {
-                var minChars = parseInt(scope.minChars) || 1,
-                    dirty = false;
-
+                var minChars = parseInt(scope.minChars) || 1;
 
                 ele.bind('change keyup', function () {
                     if (ele.val().length >= minChars) {
-                        console.log(ele.val())
                         scope.$apply(function() {
                             scope.resultList = appsFactory.searchForApps(ele.val());
                         });
-                        if(!dirty) {
-                            dirty = true;
-                        }
+
                     } else if(ele.val().length === 0){
-                        scope.resetList().then(function(apps){
-                            console.log('ARRIVED');
-                            if(ele.val().length === 0){
-                                scope.resultList = apps;
-                            }
-                        });
+                        scope.resultList.splice(0, scope.resultList.length);
+                        scope.resetList();
                     }
                 })
             }

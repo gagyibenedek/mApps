@@ -10,11 +10,13 @@
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700' rel='stylesheet' type='text/css'>
 </head>
 
-<body ng-app="meldium">
-<div ng-controller="MainController" class="board">
+<body ng-app="meldium" ng-controller="MainController">
+
+<div class="board">
     <div class="search">
         <i class="icon-search"></i>
-        <input type="text" ng-model="search" searcher result-list="apps" reset-list="getFirstBatch()" min-chars="3" class="search-input" placeholder="Search all apps">
+        <input type="text" ng-model="search" searcher result-list="apps" reset-list="resetAppList()" min-chars="3"
+               class="search-input" placeholder="Search all apps">
     </div>
 
     <div class="header">
@@ -29,19 +31,24 @@
         <new-app save-new-app="saveNewApp" cancel="cancelNewApp()"></new-app>
     </div>
 
-    <div class="apps" infinite-scroll="paging()" infinite-scroll-distance="1">
+    <!--<div class="apps" infinite-scroll="paging()" infinite-scroll-distance="1">-->
+    <div class="apps" scroller>
         <h3 ng-hide="apps">Please wait, the apps are loading...</h3>
 
-        <app-box ng-repeat="appIter in apps track by $index" app="appIter"
+        <app-box id="app-box-{{$index}}" ng-repeat="appIter in apps track by $index" app="appIter"
                  index="{{$index}}" open-details="openAppDetails"></app-box>
     </div>
 
     <app-details app="appWithDetails" close="closeAppDetails()"
                  ng-class="{'open': showAppDetails}"></app-details>
 
+    <div ng-if="pagingInProgress || allTheWayInProgress" class="loading">
+        Loading...
+    </div>
+
+
 </div>
 
-<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
 <script src="app/dist/app.js"></script>
 
