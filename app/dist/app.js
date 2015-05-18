@@ -18,6 +18,8 @@ app.controller('MainController', ['$scope', 'appsFactory', '$window', '$document
             appsFactory.getBatchOfApps(pageSize, pageSize + 10).then(function (apps) {
                 var page = Math.floor($document[0].body.clientHeight / $window.innerHeight);
                 $scope.apps = $scope.apps.concat(apps);
+
+                //set the page size depending on the viewport size
                 pageSize += 10;
                 cursor = pageSize;
 
